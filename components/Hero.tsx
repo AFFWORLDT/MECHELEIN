@@ -1,4 +1,6 @@
-import { hero, mainAction } from "@/lib/content";
+import Link from "next/link";
+import { hero } from "@/lib/content";
+import { mainAction } from "@/lib/site";
 import { ArrowIcon, Kicker, vars } from "./ui";
 
 // Each headline word rises in on its own delay; the kicker, lede and
@@ -60,12 +62,12 @@ export default function Hero() {
           {hero.lede}
         </p>
         <div className="actions hx" style={delay(after + 0.12)}>
-          <a className="btn" href={mainAction.href}>
+          <Link className="btn" href={mainAction.href}>
             {mainAction.label} <ArrowIcon />
-          </a>
-          <a className="btn btn--line" href="#services">
+          </Link>
+          <Link className="btn btn--line" href="/services">
             See our services
-          </a>
+          </Link>
         </div>
       </div>
     </section>

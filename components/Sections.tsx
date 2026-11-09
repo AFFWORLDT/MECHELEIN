@@ -1,17 +1,9 @@
-import { about, city, faq, mainAction, sectors, services, steps } from "@/lib/content";
+import Link from "next/link";
+import { about, city, faq, steps } from "@/lib/content";
+import { sectors } from "@/lib/sectors";
+import { services } from "@/lib/services";
+import { FaqList, SectionHead, ServiceGrid } from "./Page";
 import { ArrowIcon, Kicker } from "./ui";
-
-function SectionHead({ kicker, id, title, lede }: { kicker: string; id: string; title: string; lede: string }) {
-  return (
-    <div className="head">
-      <div>
-        <Kicker>{kicker}</Kicker>
-        <h2 id={id}>{title}</h2>
-      </div>
-      <p className="lede">{lede}</p>
-    </div>
-  );
-}
 
 const num = (i: number) => String(i + 1).padStart(2, "0");
 
@@ -25,19 +17,7 @@ export function Services() {
           title="Our services"
           lede="The building systems we install, service and repair for homes and businesses across Dubai."
         />
-        <div className="bento">
-          {services.map((s, i) => (
-            <a key={s.title} className={s.size ? `svc svc--${s.size}` : "svc"} href={mainAction.href}>
-              <img src={s.image} alt={s.alt} loading="lazy" style={s.position ? { objectPosition: s.position } : undefined} />
-              <span className="svc__num">{num(i)}</span>
-              <span className="svc__go">
-                <ArrowIcon />
-              </span>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
-            </a>
-          ))}
-        </div>
+        <ServiceGrid items={services} />
       </div>
     </section>
   );
@@ -72,13 +52,13 @@ export function Sectors() {
         />
         <div className="tiles">
           {sectors.map((s) => (
-            <a key={s.title} className="tile" href={mainAction.href}>
+            <Link key={s.slug} className="tile" href={`/sectors/${s.slug}`}>
               <div className="tile__ph">
                 <img src={s.image} alt={s.alt} loading="lazy" style={s.position ? { objectPosition: s.position } : undefined} />
               </div>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
-            </a>
+              <h3>{s.name}</h3>
+              <p>{s.short}</p>
+            </Link>
           ))}
         </div>
       </div>
@@ -86,7 +66,7 @@ export function Sectors() {
   );
 }
 
-export function Process() {
+export function Process({ withLink = true }: { withLink?: boolean }) {
   return (
     <section className="process on-dark" id="process" aria-labelledby="process-h">
       <div className="wrap">
@@ -110,6 +90,13 @@ export function Process() {
             </article>
           ))}
         </div>
+        {withLink && (
+          <p className="more-link">
+            <Link className="text-link" href="/how-we-work">
+              More about how we work <ArrowIcon />
+            </Link>
+          </p>
+        )}
       </div>
     </section>
   );
@@ -134,9 +121,9 @@ export function About() {
               </li>
             ))}
           </ul>
-          <a className="btn btn--blue" href={mainAction.href}>
-            Talk to our team <ArrowIcon />
-          </a>
+          <Link className="btn btn--blue" href="/about">
+            About MTS <ArrowIcon />
+          </Link>
         </div>
       </div>
     </section>
@@ -151,21 +138,11 @@ export function Faq() {
           <Kicker>Questions</Kicker>
           <h2 id="faq-h">Before you book</h2>
           <p className="lede">Common questions. For anything else, send us a request.</p>
-          <a className="btn btn--blue" href={mainAction.href}>
-            {mainAction.label} <ArrowIcon />
-          </a>
+          <Link className="btn btn--blue" href="/faq">
+            See all questions <ArrowIcon />
+          </Link>
         </div>
-        <div className="qa">
-          {faq.map((item, i) => (
-            <details key={item.q} open={i === 0}>
-              <summary>
-                <span>{item.q}</span>
-                <i />
-              </summary>
-              <p>{item.a}</p>
-            </details>
-          ))}
-        </div>
+        <FaqList items={faq} />
       </div>
     </section>
   );

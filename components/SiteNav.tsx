@@ -1,12 +1,15 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { mainAction, navLinks } from "@/lib/content";
+import { mainAction, navLinks } from "@/lib/site";
 import { Lockup } from "./ui";
 
 // Floating pill nav: turns solid once scrolled, slides away while scrolling down,
-// and opens a full menu card on phones.
+// and opens a full menu card on phones. The current section's link is marked.
 export default function SiteNav() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -24,30 +27,39 @@ export default function SiteNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // a new page always opens with the menu closed and the bar showing
+  const [prevPath, setPrevPath] = useState(pathname);
+  if (pathname !== prevPath) {
+    setPrevPath(pathname);
+    setOpen(false);
+    setHidden(false);
+  }
+
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
   }, [open]);
 
   const className = ["nav", open && "open", scrolled && "scrolled", hidden && !open && "hide"].filter(Boolean).join(" ");
+  const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <header className={className}>
       <div className="wrap">
-        <a className="nav__logo" href="#top" aria-label="Mechelein Technical Services, home">
+        <Link className="nav__logo" href="/" aria-label="Mechelein Technical Services, home">
           <Lockup wordAlt="Mechelein" />
-        </a>
+        </Link>
         <ul id="menu">
           {navLinks.map((l) => (
             <li key={l.href}>
-              <a href={l.href} onClick={() => setOpen(false)}>
+              <Link href={l.href} aria-current={isCurrent(l.href) ? "page" : undefined} onClick={() => setOpen(false)}>
                 {l.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
-        <a className="btn" href={mainAction.href}>
+        <Link className="btn" href={mainAction.href}>
           {mainAction.label}
-        </a>
+        </Link>
         <button
           className="nav__toggle"
           type="button"

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { FORM_TO, formServices } from "@/lib/content";
+import { services } from "@/lib/services";
+import { FORM_TO } from "@/lib/site";
 import { ArrowIcon } from "./ui";
 
 // No backend yet: submitting opens the visitor's email app with the request filled in.
@@ -38,9 +39,10 @@ export default function RequestForm() {
       <label className="field">
         Service
         <select name="service">
-          {formServices.map((s) => (
-            <option key={s}>{s}</option>
+          {services.map((s) => (
+            <option key={s.slug}>{s.name}</option>
           ))}
+          <option>Something else</option>
         </select>
       </label>
       <label className="field">

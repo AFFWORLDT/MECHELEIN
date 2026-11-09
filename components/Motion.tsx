@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 // Elements that fade or slide in as they reach the screen, staggered within each group.
@@ -18,13 +19,17 @@ const REVEAL_GROUPS = [
   ".next li",
   ".form-wrap",
   ".foot > *",
+  ".rv-group > *",
+  ".cta-band .wrap > *",
 ];
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// All the page's scroll and entrance motion. The markup is rendered by the server
-// components; this only toggles classes and CSS variables on it.
+// All the site's scroll and entrance motion. The markup is rendered by the server
+// components; this only toggles classes and CSS variables on it. It lives in the
+// layout and runs again on every page change.
 export default function Motion() {
+  const pathname = usePathname();
   const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,20 +40,24 @@ export default function Motion() {
       cleanups.push(() => window.removeEventListener(type, fn, opts));
     };
 
-    // hero entrance: the words, kicker, lede, buttons and trade strip carry their own delays
-    const hero = document.querySelector<HTMLElement>(".hero")!;
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add("ready")));
-    const settle = setTimeout(() => hero.classList.add("settled"), 2800);
-    cleanups.push(() => {
-      cancelAnimationFrame(raf);
-      clearTimeout(settle);
-    });
+    // opening entrance: the home hero (words, kicker, buttons) or an inner page's header
+    const hero = document.querySelector<HTMLElement>(".hero");
+    const pageHero = document.querySelector<HTMLElement>(".page-hero");
+    const opener = hero ?? pageHero;
+    if (opener) {
+      const raf = requestAnimationFrame(() => requestAnimationFrame(() => opener.classList.add("ready")));
+      const settle = setTimeout(() => opener.classList.add("settled"), 2800);
+      cleanups.push(() => {
+        cancelAnimationFrame(raf);
+        clearTimeout(settle);
+      });
+    }
 
     // reveal on scroll
     REVEAL_GROUPS.forEach((sel) => {
       const byParent = new Map<Node, HTMLElement[]>();
       document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
-        if (el.closest(".hero")) return;
+        if (el.closest(".hero, .page-hero")) return;
         const parent = el.parentNode!;
         byParent.set(parent, [...(byParent.get(parent) ?? []), el]);
       });
@@ -69,7 +78,7 @@ export default function Motion() {
         }),
       { rootMargin: "0px 0px -10% 0px", threshold: 0.08 },
     );
-    document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+    document.querySelectorAll(".rv:not(.in)").forEach((el) => io.observe(el));
     cleanups.push(() => io.disconnect());
 
     // geometry check as well: an element clipped or tilted out of view reports no intersection
@@ -90,43 +99,45 @@ export default function Motion() {
 
     // footer wordmark: light the letters one by one, glow the whole word, fade, repeat;
     // restarts from the first letter every time the footer scrolls into view
-    const wm = document.querySelector<HTMLElement>(".wordmark")!;
-    const letters = [...wm.querySelectorAll<HTMLElement>(".l")];
-    let wmRun = 0;
-    const wmLoop = async (run: number) => {
-      wm.classList.add("in");
-      letters.forEach((l) => l.classList.remove("lit"));
-      wm.classList.remove("full");
-      await wait(60);
-      while (run === wmRun) {
-        for (const l of letters) {
-          if (run !== wmRun) return;
-          l.classList.add("lit");
-          await wait(120);
-        }
-        await wait(250);
-        if (run !== wmRun) return;
-        wm.classList.add("full");
-        await wait(2300);
-        if (run !== wmRun) return;
-        wm.classList.remove("full");
+    const wm = document.querySelector<HTMLElement>(".wordmark");
+    if (wm) {
+      const letters = [...wm.querySelectorAll<HTMLElement>(".l")];
+      let wmRun = 0;
+      const wmLoop = async (run: number) => {
+        wm.classList.add("in");
         letters.forEach((l) => l.classList.remove("lit"));
-        await wait(1200);
-      }
-    };
-    const wmIo = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          wmRun++;
-          if (e.isIntersecting) wmLoop(wmRun);
-        }),
-      { threshold: 0.01 },
-    );
-    wmIo.observe(wm);
-    cleanups.push(() => {
-      wmIo.disconnect();
-      wmRun++;
-    });
+        wm.classList.remove("full");
+        await wait(60);
+        while (run === wmRun) {
+          for (const l of letters) {
+            if (run !== wmRun) return;
+            l.classList.add("lit");
+            await wait(120);
+          }
+          await wait(250);
+          if (run !== wmRun) return;
+          wm.classList.add("full");
+          await wait(2300);
+          if (run !== wmRun) return;
+          wm.classList.remove("full");
+          letters.forEach((l) => l.classList.remove("lit"));
+          await wait(1200);
+        }
+      };
+      const wmIo = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            wmRun++;
+            if (e.isIntersecting) wmLoop(wmRun);
+          }),
+        { threshold: 0.01 },
+      );
+      wmIo.observe(wm);
+      cleanups.push(() => {
+        wmIo.disconnect();
+        wmRun++;
+      });
+    }
 
     // spotlight that follows the pointer on service cards
     document.querySelectorAll<HTMLElement>(".svc").forEach((card) => {
@@ -139,19 +150,21 @@ export default function Motion() {
       cleanups.push(() => card.removeEventListener("pointermove", move));
     });
 
-    // scroll: progress bar and parallax
-    const heroBg = hero.querySelector<HTMLElement>(".hero__bg")!;
-    const city = document.querySelector<HTMLElement>(".city")!;
-    const cityImg = city.querySelector<HTMLElement>("img")!;
+    // scroll: progress bar and parallax on the opening photo and the skyline band
+    const openerBg = opener?.querySelector<HTMLElement>(".hero__bg, .page-hero__bg") ?? null;
+    const city = document.querySelector<HTMLElement>(".city");
+    const cityImg = city?.querySelector<HTMLElement>("img") ?? null;
     let ticking = false;
     const frame = () => {
       const y = window.scrollY;
       const max = root.scrollHeight - window.innerHeight;
       progressRef.current?.style.setProperty("--p", String(max > 0 ? y / max : 0));
-      if (y < window.innerHeight * 1.2) heroBg.style.setProperty("--py", `${y * 0.3}px`);
-      const cr = city.getBoundingClientRect();
-      if (cr.bottom > 0 && cr.top < window.innerHeight) {
-        cityImg.style.setProperty("--py", `${(cr.top + cr.height / 2 - window.innerHeight / 2) * -0.18}px`);
+      if (openerBg && y < window.innerHeight * 1.2) openerBg.style.setProperty("--py", `${y * 0.3}px`);
+      if (city && cityImg) {
+        const cr = city.getBoundingClientRect();
+        if (cr.bottom > 0 && cr.top < window.innerHeight) {
+          cityImg.style.setProperty("--py", `${(cr.top + cr.height / 2 - window.innerHeight / 2) * -0.18}px`);
+        }
       }
       revealCheck();
       ticking = false;
@@ -172,7 +185,7 @@ export default function Motion() {
     frame();
 
     return () => cleanups.forEach((fn) => fn());
-  }, []);
+  }, [pathname]);
 
   return <div className="progress" ref={progressRef} />;
 }

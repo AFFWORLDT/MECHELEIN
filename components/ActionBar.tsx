@@ -1,25 +1,31 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { mainAction } from "@/lib/content";
+import { mainAction } from "@/lib/site";
 import { ArrowIcon } from "./ui";
 
-// Phone-only floating button. Hidden while the hero's own button is on screen,
-// and again once the contact form or footer comes into view, so it never repeats
-// a button the visitor can already see or covers the form it points to.
+// Phone-only floating button. Hidden while the page's opening header (and its own
+// button) is on screen, once the contact form or footer comes into view, and on the
+// contact page itself, so it never repeats a button the visitor can already see.
 export default function ActionBar() {
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
 
+  const onContactPage = pathname === mainAction.href;
+
   useEffect(() => {
-    const hero = document.querySelector(".hero");
+    if (onContactPage) return;
+    const top = document.querySelector(".hero, .page-hero");
     const targets = [document.querySelector("#request"), document.querySelector("footer")];
     const update = () => {
-      const pastHero = (hero?.getBoundingClientRect().bottom ?? 0) < window.innerHeight * 0.35;
+      const pastTop = (top?.getBoundingClientRect().bottom ?? 0) < window.innerHeight * 0.35;
       const nearForm = targets.some((el) => {
         const r = el?.getBoundingClientRect();
         return r && r.top < window.innerHeight * 0.9 && r.bottom > 0;
       });
-      setShow(pastHero && !nearForm);
+      setShow(pastTop && !nearForm);
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -28,13 +34,15 @@ export default function ActionBar() {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, []);
+  }, [pathname, onContactPage]);
+
+  const visible = show && !onContactPage;
 
   return (
-    <div className={show ? "actionbar show" : "actionbar"} aria-hidden={!show}>
-      <a className="btn" href={mainAction.href} tabIndex={show ? 0 : -1}>
+    <div className={visible ? "actionbar show" : "actionbar"} aria-hidden={!visible}>
+      <Link className="btn" href={mainAction.href} tabIndex={visible ? 0 : -1}>
         {mainAction.label} <ArrowIcon />
-      </a>
+      </Link>
     </div>
   );
 }
