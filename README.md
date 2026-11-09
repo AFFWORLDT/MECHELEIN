@@ -11,9 +11,12 @@ npm run dev      # http://localhost:3000
 npm run build    # static site in out/
 ```
 
-The build in `out/` needs no server, so it can be hosted on any static host
-(Vercel, Netlify, cPanel, S3). Each page is a folder (`/about/` is `out/about/index.html`),
-so direct visits and refreshes work everywhere.
+The build in `out/` needs no server. It is hosted on Cloudflare Workers (static assets) at
+https://mecheleindxb.com, configured in `wrangler.jsonc`. Each page is a folder
+(`/about/` is `out/about/index.html`), so direct visits and refreshes work on any static host.
+
+Canonical links, the sitemap and social previews use `https://mecheleindxb.com`. To build for another
+address, set `NEXT_PUBLIC_SITE_URL`, for example `NEXT_PUBLIC_SITE_URL=https://staging.example.com npm run build`.
 
 ## Pages
 
@@ -44,9 +47,6 @@ so direct visits and refreshes work everywhere.
 
 ## Before going live
 
-- **Set the domain.** Build with `NEXT_PUBLIC_SITE_URL` set to the live address, for example
-  `NEXT_PUBLIC_SITE_URL=https://www.yourdomain.ae npm run build` (or add it as an environment variable on
-  Vercel). Canonical links, the sitemap and social previews use it.
 - Set `FORM_TO` in `lib/site.ts` to MTS's real email. The form has no backend: it opens the
   visitor's email app with the request filled in. Swap in a form service if you want submissions
   sent directly.

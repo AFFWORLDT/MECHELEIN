@@ -1,8 +1,8 @@
 // Site-wide settings used by metadata, structured data, the sitemap and robots.txt.
 
-// The live domain. Set NEXT_PUBLIC_SITE_URL when deploying (for example https://www.yourdomain.ae);
-// canonical links, the sitemap and social previews are built from it.
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.mechelein.example").replace(/\/$/, "");
+// The live domain (the Cloudflare custom domain in wrangler.jsonc). Canonical links, the sitemap
+// and social previews are built from it; NEXT_PUBLIC_SITE_URL overrides it, e.g. for a staging copy.
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://mecheleindxb.com").replace(/\/$/, "");
 
 // Page paths end in a slash to match the exported folders (/about/); files (.jpg, .xml) don't.
 export const withSlash = (path: string) => (path.endsWith("/") || /\.[a-z0-9]+$/i.test(path) ? path : `${path}/`);
