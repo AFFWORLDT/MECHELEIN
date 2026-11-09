@@ -11,15 +11,15 @@ npm run dev      # http://localhost:3000
 npm run build    # static site in out/
 ```
 
-`out/` is plain HTML, CSS, JS and images, so it can be hosted on any static host
+The build in `out/` needs no server, so it can be hosted on any static host
 (Vercel, Netlify, cPanel, S3). On Vercel no settings are needed.
 
 ## Where things are
 
 - `lib/content.ts`: every heading, paragraph, service, FAQ answer and photo path.
   Edit copy here, not in the components.
-- `components/`: one component per part of the page. `SiteNav`, `RequestForm` and `Motion`
-  are client components (menu, form, animations); the rest render at build time.
+- `components/`: one component per part of the page. `SiteNav`, `RequestForm`, `ActionBar` and
+  `Motion` are client components (menu, form, phone button, animations); the rest render at build time.
 - `app/globals.css`: the whole stylesheet.
 - `public/assets/`: the client's logo (cut into the MTS mark and the wordmark) and the photographs.
 
