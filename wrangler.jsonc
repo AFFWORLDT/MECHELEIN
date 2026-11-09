@@ -1,0 +1,13 @@
+{
+  "name": "mechelein-site",
+  // Affworld0@gmail.com's Cloudflare account.
+  "account_id": "dd501fac7d8aa896ead9530b9cd1b913",
+  "compatibility_date": "2026-10-01",
+  // Static site only (next build -> out/), no Worker script.
+  "assets": { "directory": "./out", "not_found_handling": "404-page" },
+  "routes": [
+    { "pattern": "mecheleindxb.com", "custom_domain": true },
+    { "pattern": "www.mecheleindxb.com", "custom_domain": true }
+  ],
+  "workers_dev": false
+}
