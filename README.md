@@ -15,6 +15,15 @@ The build in `out/` needs no server. It is hosted on Cloudflare Workers (static 
 https://mecheleindxb.com, configured in `wrangler.jsonc`. Each page is a folder
 (`/about/` is `out/about/index.html`), so direct visits and refreshes work on any static host.
 
+## Deploying
+
+Pushing to GitHub does not update the live site. To publish changes to mecheleindxb.com, build and deploy
+with an account that has access to the Cloudflare account in `wrangler.jsonc`:
+
+```bash
+npm run build && npx wrangler deploy
+```
+
 Canonical links, the sitemap and social previews use `https://mecheleindxb.com`. To build for another
 address, set `NEXT_PUBLIC_SITE_URL`, for example `NEXT_PUBLIC_SITE_URL=https://staging.example.com npm run build`.
 
