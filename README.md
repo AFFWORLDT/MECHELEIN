@@ -1,5 +1,4 @@
 # Mechelein Technical Services website
-
 Website for Mechelein Technical Services (MTS), a technical services company in Dubai.
 Built with Next.js (App Router) and exported as a static site: 30 pages, every one prerendered.
 
