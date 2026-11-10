@@ -1,5 +1,4 @@
 import { CtaBand, JsonLd, PageHero, SectionHead, ServiceGrid } from "@/components/Page";
-import { Process } from "@/components/Sections";
 import { services } from "@/lib/services";
 import { pageMeta } from "@/lib/seo";
 import { abs, SITE_URL } from "@/lib/site";
@@ -42,7 +41,6 @@ export default function ServicesPage() {
           <ServiceGrid items={services} />
         </div>
       </section>
-      <Process />
       <CtaBand />
     </main>
   );

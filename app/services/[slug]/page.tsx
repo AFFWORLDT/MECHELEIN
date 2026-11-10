@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CtaBand, FaqList, faqJsonLd, GuideCards, JsonLd, LinkCards, PageHero, SectionHead } from "@/components/Page";
-import { Process } from "@/components/Sections";
 import { ArrowIcon, Kicker } from "@/components/ui";
 import { guides } from "@/lib/guides";
 import { sectors } from "@/lib/sectors";
@@ -106,7 +105,6 @@ export default async function ServicePage(props: PageProps<"/services/[slug]">) 
         </div>
       </section>
 
-      <Process />
 
       <section className="faq" aria-labelledby="service-faq-h">
         <div className="wrap">
